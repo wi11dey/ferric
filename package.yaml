@@ -4,10 +4,12 @@ dependencies:
   - aeson
   - base
   - bytestring
+  - containers
   - http-conduit
   - template-haskell
   - zstd
 default-extensions:
+  - DeriveGeneric
   - TemplateHaskell
   - TypeApplications
   - UnicodeSyntax
@@ -15,3 +17,5 @@ ghc-options:
   - -Wall
 library:
   source-dirs: src
+  exposed-modules:
+    - Ferric

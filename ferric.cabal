@@ -12,10 +12,16 @@ library
   exposed-modules:
       Ferric
   other-modules:
+      Ferric.Crate
+      Ferric.Item
+      Ferric.ItemEnum
+      Ferric.Visibility
+      Test
       Paths_ferric
   hs-source-dirs:
       src
   default-extensions:
+      DeriveGeneric
       TemplateHaskell
       TypeApplications
       UnicodeSyntax
@@ -24,6 +30,7 @@ library
       aeson
     , base
     , bytestring
+    , containers
     , http-conduit
     , template-haskell
     , zstd
