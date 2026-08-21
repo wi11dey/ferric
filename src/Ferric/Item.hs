@@ -1,5 +1,6 @@
 module Ferric.Item where
 
+import Data.Aeson
 import Ferric.ItemEnum (ItemEnum)
 import Ferric.Visibility (Visibility)
 import GHC.Generics
@@ -12,4 +13,4 @@ data Item = Item
   , docs :: Maybe String
   , inner :: ItemEnum
   }
-  deriving (Show, Generic)
+  deriving (Show, Generic, FromJSON)

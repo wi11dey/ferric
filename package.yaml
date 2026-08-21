@@ -9,6 +9,7 @@ dependencies:
   - template-haskell
   - zstd
 default-extensions:
+  - DeriveAnyClass
   - DeriveGeneric
   - TemplateHaskell
   - TypeApplications

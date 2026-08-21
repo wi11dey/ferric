@@ -1,15 +1,11 @@
 module Ferric (crate) where
 
-import Control.Monad
 import Data.ByteString.Lazy (ByteString)
 import Ferric.Crate
 import Language.Haskell.TH
 import Network.HTTP.Conduit
 import qualified Codec.Compression.Zstd.Lazy as Zstd
 import Data.Aeson
-
-rustdocEnumOptions :: Options
-rustdocEnumOptions = defaultOptions { sumEncoding = ObjectWithSingleField }
 
 crate :: String -> String -> Q [Dec]
 crate name version = do
@@ -18,5 +14,6 @@ crate name version = do
 
 crate' :: ByteString -> Q [Dec]
 crate' rustdocJson = do
-  runIO $ putStrLn $ show $ decode @Crate rustdocJson
+  decoded <- throwDecode @Crate rustdocJson
+  runIO $ putStrLn $ show decoded
   return []

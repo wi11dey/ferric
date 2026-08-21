@@ -1,6 +1,7 @@
 module Ferric.Crate where
 
-import Data.IntMap.Strict (IntMap)
+import Data.Aeson
+import Data.Map.Strict (Map)
 import Ferric.Item
 import GHC.Generics
 
@@ -8,7 +9,7 @@ data Crate = Crate
   { root :: Int
   , crate_version :: Maybe String
   , includes_private :: Bool
-  , index :: IntMap Item
+  , index :: Map Int Item
   , format_version :: Int
   }
-  deriving (Show, Generic)
+  deriving (Show, Generic, FromJSON)
