@@ -28,6 +28,9 @@ crate name version = do
 crate' :: ByteString -> Q [Dec]
 crate' rustdocJson = do
   Crate {..} <- throwDecode rustdocJson
+  if format_version /= 60
+    then reportWarning $ "The only rustdoc JSON version that is supported is 60; received " ++ show format_version ++ ". Attempting to continue generating bindings, but may be unsuccessful."
+    else pure ()
   emit $ flip unfold root \itemId ->
     fromJust $ (Right <$> index !? itemId) <|> (Left <$> paths !? itemId)
 
