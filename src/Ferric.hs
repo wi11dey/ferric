@@ -28,10 +28,10 @@ crate' rustdocJson = do
     fromJust $ (Right <$> index !? itemId) <|> (Left <$> paths !? itemId)
 
 emit :: Free Item ItemSummary -> Q [Dec]
+emit (Free Item {inner = Use Item.Use {id = Just item}}) = emit item
 emit (Free Item {name = Just name, inner = Module Item.Module {items}}) = do
   runIO $ putStrLn $ "Module " ++ name
   concat <$> mapM emit items
-emit (Free Item {inner = Use Item.Use {id = Just item}}) = emit item
 emit (Free Item {name = Just name, inner = Enum _}) = do
   runIO $ putStrLn $ "Enum " ++ name
   return []
