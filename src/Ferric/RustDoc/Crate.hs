@@ -1,8 +1,8 @@
-module Ferric.Crate where
+module Ferric.RustDoc.Crate where
 
 import Data.Aeson
 import Data.Map.Strict (Map)
-import Ferric.Item
+import Ferric.RustDoc.Item
 import GHC.Generics
 
 data Crate = Crate

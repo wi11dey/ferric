@@ -12,24 +12,24 @@ library
   exposed-modules:
       Ferric
   other-modules:
-      Ferric.AssocConst
-      Ferric.AssocType
-      Ferric.Constant
-      Ferric.Crate
-      Ferric.Enum
-      Ferric.ExternCrate
-      Ferric.Function
-      Ferric.Impl
-      Ferric.Item
-      Ferric.ItemEnum
-      Ferric.Module
-      Ferric.Struct
-      Ferric.StructField
-      Ferric.Trait
-      Ferric.TypeAlias
-      Ferric.Use
-      Ferric.Variant
-      Ferric.Visibility
+      Ferric.RustDoc.AssocConst
+      Ferric.RustDoc.AssocType
+      Ferric.RustDoc.Constant
+      Ferric.RustDoc.Crate
+      Ferric.RustDoc.Enum
+      Ferric.RustDoc.ExternCrate
+      Ferric.RustDoc.Function
+      Ferric.RustDoc.Impl
+      Ferric.RustDoc.Item
+      Ferric.RustDoc.ItemEnum
+      Ferric.RustDoc.Module
+      Ferric.RustDoc.Struct
+      Ferric.RustDoc.StructField
+      Ferric.RustDoc.Trait
+      Ferric.RustDoc.TypeAlias
+      Ferric.RustDoc.Use
+      Ferric.RustDoc.Variant
+      Ferric.RustDoc.Visibility
       Test
       Paths_ferric
   hs-source-dirs:

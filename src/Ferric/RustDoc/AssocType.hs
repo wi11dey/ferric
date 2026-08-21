@@ -1,16 +1,17 @@
-module Ferric.AssocConst where
+module Ferric.RustDoc.AssocType where
 
 import Data.Aeson
 import GHC.Generics
 
-data AssocConst = AssocConst
-  { type_ :: Value,
-    value :: Maybe String,
+data AssocType = AssocType
+  { generics :: Value,
+    bounds :: [Value],
+    type_ :: Maybe Value,
     default_unstable :: Maybe Value
   }
   deriving (Show, Generic)
 
-instance FromJSON AssocConst where
+instance FromJSON AssocType where
   parseJSON =
     genericParseJSON
       defaultOptions

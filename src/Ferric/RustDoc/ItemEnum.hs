@@ -1,20 +1,20 @@
-module Ferric.ItemEnum where
+module Ferric.RustDoc.ItemEnum where
 
 import Data.Aeson
-import Ferric.AssocConst (AssocConst)
-import Ferric.AssocType (AssocType)
-import Ferric.Constant (Constant)
-import Ferric.Enum (Enum)
-import Ferric.ExternCrate (ExternCrate)
-import Ferric.Function (Function)
-import Ferric.Impl (Impl)
-import Ferric.Module (Module)
-import Ferric.Struct (Struct)
-import Ferric.StructField (StructField)
-import Ferric.Trait (Trait)
-import Ferric.TypeAlias (TypeAlias)
-import Ferric.Use (Use)
-import Ferric.Variant (Variant)
+import Ferric.RustDoc.AssocConst (AssocConst)
+import Ferric.RustDoc.AssocType (AssocType)
+import Ferric.RustDoc.Constant (Constant)
+import Ferric.RustDoc.Enum (Enum)
+import Ferric.RustDoc.ExternCrate (ExternCrate)
+import Ferric.RustDoc.Function (Function)
+import Ferric.RustDoc.Impl (Impl)
+import Ferric.RustDoc.Module (Module)
+import Ferric.RustDoc.Struct (Struct)
+import Ferric.RustDoc.StructField (StructField)
+import Ferric.RustDoc.Trait (Trait)
+import Ferric.RustDoc.TypeAlias (TypeAlias)
+import Ferric.RustDoc.Use (Use)
+import Ferric.RustDoc.Variant (Variant)
 import GHC.Generics
 import Prelude hiding (Enum)
 

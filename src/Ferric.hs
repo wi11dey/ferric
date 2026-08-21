@@ -4,8 +4,8 @@ import Data.Aeson
 import Data.ByteString.Lazy (ByteString)
 import Data.Map.Strict (Map)
 import Data.Maybe
-import Ferric.Crate
-import Ferric.Item
+import Ferric.RustDoc.Crate
+import Ferric.RustDoc.Item
 import Language.Haskell.TH
 import Network.HTTP.Conduit
 import qualified Codec.Compression.Zstd.Lazy as Zstd

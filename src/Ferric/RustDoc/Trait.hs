@@ -1,4 +1,4 @@
-module Ferric.Trait where
+module Ferric.RustDoc.Trait where
 
 import Data.Aeson
 import GHC.Generics

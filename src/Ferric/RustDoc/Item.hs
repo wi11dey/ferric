@@ -1,8 +1,8 @@
-module Ferric.Item where
+module Ferric.RustDoc.Item where
 
 import Data.Aeson
-import Ferric.ItemEnum (ItemEnum)
-import Ferric.Visibility (Visibility)
+import Ferric.RustDoc.ItemEnum (ItemEnum)
+import Ferric.RustDoc.Visibility (Visibility)
 import GHC.Generics
 
 data Item = Item

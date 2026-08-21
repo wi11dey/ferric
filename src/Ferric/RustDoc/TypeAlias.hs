@@ -1,4 +1,4 @@
-module Ferric.TypeAlias where
+module Ferric.RustDoc.TypeAlias where
 
 import Data.Aeson
 import GHC.Generics

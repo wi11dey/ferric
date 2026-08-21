@@ -1,4 +1,4 @@
-module Ferric.ExternCrate where
+module Ferric.RustDoc.ExternCrate where
 
 import Data.Aeson
 import GHC.Generics

@@ -1,7 +1,7 @@
 {-# LANGUAGE DerivingStrategies #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
-module Ferric.StructField where
+module Ferric.RustDoc.StructField where
 
 import Data.Aeson
 

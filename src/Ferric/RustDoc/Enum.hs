@@ -1,4 +1,4 @@
-module Ferric.Enum where
+module Ferric.RustDoc.Enum where
 
 import Data.Aeson
 import GHC.Generics

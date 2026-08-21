@@ -1,7 +1,7 @@
 {-# LANGUAGE BlockArguments #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-module Ferric.Visibility where
+module Ferric.RustDoc.Visibility where
 
 import Control.Monad
 import Data.Aeson

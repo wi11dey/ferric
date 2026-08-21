@@ -1,4 +1,4 @@
-module Ferric.Impl where
+module Ferric.RustDoc.Impl where
 
 import Data.Aeson
 import GHC.Generics

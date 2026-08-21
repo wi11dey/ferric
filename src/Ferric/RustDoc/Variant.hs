@@ -1,11 +1,10 @@
-module Ferric.Struct where
+module Ferric.RustDoc.Variant where
 
 import Data.Aeson
 import GHC.Generics
 
-data Struct = Struct
+data Variant = Variant
   { kind :: Value,
-    generics :: Value,
-    impls :: [Int]
+    discriminant :: Maybe Value
   }
   deriving (Show, Generic, FromJSON)
