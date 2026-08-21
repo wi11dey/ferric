@@ -38,6 +38,7 @@ library
   default-extensions:
       DeriveAnyClass
       DeriveGeneric
+      NamedFieldPuns
       RecordWildCards
       TemplateHaskell
       TypeApplications
@@ -48,6 +49,7 @@ library
     , bytestring
     , containers
     , http-conduit
+    , pretty-simple
     , template-haskell
     , zstd
   default-language: Haskell2010

@@ -7,7 +7,7 @@ import Data.Map.Strict (Map, (!))
 import Ferric.RustDoc.Crate
 import Ferric.RustDoc.Item
 import qualified Ferric.RustDoc.ItemEnum as ItemEnum
-import Ferric.RustDoc.ItemSummary
+import Text.Pretty.Simple
 import Ferric.RustDoc.Module
 import Language.Haskell.TH
 import Network.HTTP.Conduit
@@ -20,11 +20,16 @@ crate name version = do
 crate' :: ByteString -> Q [Dec]
 crate' rustdocJson = do
   Crate {..} <- throwDecode @Crate rustdocJson
-  runIO $ putStrLn $ show $ emit paths index root
+  runIO $ do
+    mapM_ pPrint $ emit index root
   return []
 
-emit :: Map Int ItemSummary -> Map Int Item -> Int -> [String]
-emit paths index root =
-  case inner $ index ! root of
-    ItemEnum.Module (Module {..}) -> concatMap (emit paths index) items -- TODO: make new module
-    _ -> []
+emit :: Map Int Item -> Int -> [String]
+emit index root =
+  let Item {name, inner} = index ! root
+   in case inner of
+        ItemEnum.Module Module {..} -> concatMap (emit index) items -- TODO: make new module
+        ItemEnum.Enum enum -> [show enum]
+        ItemEnum.Struct struct -> [show struct]
+        ItemEnum.Impl impl -> [show impl]
+        _ -> []

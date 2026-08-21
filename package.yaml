@@ -8,9 +8,11 @@ dependencies:
   - http-conduit
   - template-haskell
   - zstd
+  - pretty-simple
 default-extensions:
   - DeriveAnyClass
   - DeriveGeneric
+  - NamedFieldPuns
   - RecordWildCards
   - TemplateHaskell
   - TypeApplications
