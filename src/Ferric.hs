@@ -1,15 +1,15 @@
 module Ferric (crate, crate') where
 
+import qualified Codec.Compression.Zstd.Lazy as Zstd
 import Data.Aeson
 import Data.ByteString.Lazy (ByteString)
-import Data.Map.Strict (Map)
-import Data.Maybe
+import Data.Map.Strict (Map, (!))
 import Ferric.RustDoc.Crate
 import Ferric.RustDoc.Item
+import qualified Ferric.RustDoc.ItemEnum as ItemEnum
+import Ferric.RustDoc.Module
 import Language.Haskell.TH
 import Network.HTTP.Conduit
-import qualified Codec.Compression.Zstd.Lazy as Zstd
-import qualified Data.Map.Strict as Map
 
 crate :: String -> String -> Q [Dec]
 crate name version = do
@@ -23,6 +23,7 @@ crate' rustdocJson = do
   return []
 
 emit :: Map Int Item -> Int -> [String]
-emit root index =
-  case inner $ fromJust $ Map.lookup index root of
+emit index root =
+  case inner $ index ! root of
+    ItemEnum.Module (Module {..}) -> concatMap (emit index) items
     _ -> []
