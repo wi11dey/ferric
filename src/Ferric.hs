@@ -25,5 +25,5 @@ crate' rustdocJson = do
 emit :: Map Int Item -> Int -> [String]
 emit index root =
   case inner $ index ! root of
-    ItemEnum.Module (Module {..}) -> concatMap (emit index) items
+    ItemEnum.Module (Module {..}) -> concatMap (emit index) items -- TODO: make new module
     _ -> []

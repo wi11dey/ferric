@@ -22,6 +22,7 @@ library
       Ferric.RustDoc.Impl
       Ferric.RustDoc.Item
       Ferric.RustDoc.ItemEnum
+      Ferric.RustDoc.ItemSummary
       Ferric.RustDoc.Module
       Ferric.RustDoc.Struct
       Ferric.RustDoc.StructField
