@@ -9,6 +9,7 @@ dependencies:
   - template-haskell
   - zstd
   - pretty-simple
+  - text
 default-extensions:
   - DeriveAnyClass
   - DeriveGeneric
