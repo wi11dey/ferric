@@ -8,8 +8,6 @@ data Trait = Trait
     is_unsafe :: Bool,
     is_dyn_compatible :: Bool,
     items :: [Int],
-    generics :: Value,
-    bounds :: [Value],
     implementations :: [Int]
   }
   deriving (Show, Generic, FromJSON)

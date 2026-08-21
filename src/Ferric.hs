@@ -4,8 +4,7 @@ import qualified Codec.Compression.Zstd.Lazy as Zstd
 import Data.Aeson
 import Data.ByteString.Lazy (ByteString)
 import Data.Map.Strict (Map, (!))
-import Data.Text.Lazy (Text)
-import qualified Data.Text.Lazy.IO as Text
+import qualified Data.Text.Lazy as Text
 import Ferric.RustDoc.Crate
 import Ferric.RustDoc.Item
 import qualified Ferric.RustDoc.ItemEnum as ItemEnum
@@ -23,15 +22,16 @@ crate' :: ByteString -> Q [Dec]
 crate' rustdocJson = do
   Crate {..} <- throwDecode @Crate rustdocJson
   runIO $ do
-    mapM_ Text.putStrLn $ emit index root
+    mapM_ putStrLn $ emit index root
   return []
 
-emit :: Map Int Item -> Int -> [Text]
+emit :: Map Int Item -> Int -> [String]
 emit index root =
-  let Item {inner} = index ! root
+  let Item {name, inner} = index ! root
    in case inner of
         ItemEnum.Module Module {..} -> concatMap (emit index) items -- TODO: make new module
-        ItemEnum.Enum enum -> [pShow enum]
-        ItemEnum.Struct struct -> [pShow struct]
-        ItemEnum.Impl impl -> [pShow impl]
+        ItemEnum.Enum enum -> ["Enum " ++ show name]
+        ItemEnum.Struct struct -> ["Struct " ++ show name]
+        ItemEnum.Impl impl -> ["Impl " ++ show name]
+        ItemEnum.Function f -> ["Function " ++ show name]
         _ -> []
