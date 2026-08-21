@@ -36,20 +36,20 @@ library
   hs-source-dirs:
       src
   default-extensions:
+      BlockArguments
       DeriveAnyClass
       DeriveFunctor
       DeriveGeneric
       NamedFieldPuns
       RecordWildCards
       TemplateHaskell
-      ViewPatterns
   ghc-options: -Wall
   build-depends:
       aeson
     , base
     , bytestring
     , containers
-    , data-fix
+    , free
     , http-conduit
     , template-haskell
     , zstd

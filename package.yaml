@@ -5,18 +5,18 @@ dependencies:
   - base
   - bytestring
   - containers
-  - data-fix
+  - free
   - http-conduit
   - template-haskell
   - zstd
 default-extensions:
+  - BlockArguments
   - DeriveAnyClass
   - DeriveFunctor
   - DeriveGeneric
   - NamedFieldPuns
   - RecordWildCards
   - TemplateHaskell
-  - ViewPatterns
 ghc-options:
   - -Wall
 library:

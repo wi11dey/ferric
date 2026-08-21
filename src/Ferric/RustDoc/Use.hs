@@ -6,7 +6,7 @@ import GHC.Generics
 data Use id = Use
   { source :: String,
     name :: String,
-    id :: id,
+    id :: Maybe id,
     is_glob :: Bool
   }
   deriving (Read, Show, Generic, FromJSON, Functor)

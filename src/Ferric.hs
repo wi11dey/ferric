@@ -1,14 +1,19 @@
 module Ferric (crate, crate') where
 
 import qualified Codec.Compression.Zstd.Lazy as Zstd
+import Control.Applicative
+import Control.Monad.Free
 import Data.Aeson
 import Data.ByteString.Lazy (ByteString)
-import Data.Fix
-import Data.Map.Strict (Map, (!))
+import Data.Map.Strict ((!?))
+import Data.Maybe
 import Ferric.RustDoc.Crate
+import qualified Ferric.RustDoc.Enum as Item
 import Ferric.RustDoc.Item
-import qualified Ferric.RustDoc.ItemEnum as ItemEnum
-import Ferric.RustDoc.Module
+import Ferric.RustDoc.ItemEnum
+import Ferric.RustDoc.ItemSummary
+import qualified Ferric.RustDoc.Module as Item
+import qualified Ferric.RustDoc.Use as Item
 import Language.Haskell.TH
 import Network.HTTP.Conduit
 
@@ -20,20 +25,18 @@ crate name version = do
 crate' :: ByteString -> Q [Dec]
 crate' rustdocJson = do
   Crate {..} <- throwDecode rustdocJson
-  runIO $ do
-    mapM_ putStrLn $ emit index root
+  emit $ flip unfold root \itemId ->
+    fromJust $ (Right <$> index !? itemId) <|> (Left <$> paths !? itemId)
+
+emit :: Free Item ItemSummary -> Q [Dec]
+emit (Free Item {name, inner = Module Item.Module {items}}) = do
+  runIO $ putStrLn $ "Module " ++ show name
+  concat <$> mapM emit items
+emit (Free Item {name, inner = Use Item.Use {id = Just item}}) = emit item
+emit (Free Item {name, inner = Enum _}) = do
+  runIO $ putStrLn $ "Enum " ++ show name
   return []
-
-fromCrate :: Crate -> Fix Item
-fromCrate Crate {..} = unfoldFix (index !) root
-
-emit :: Map Int (Item Int) -> Int -> [String]
-emit index root =
-  let Item {name, inner} = index ! root
-   in case inner of
-        ItemEnum.Module Module {..} -> concatMap (emit index) items -- TODO: make new module
-        ItemEnum.Enum enum -> ["Enum " ++ show name]
-        ItemEnum.Struct struct -> ["Struct " ++ show name]
-        ItemEnum.Impl impl -> ["Impl " ++ show name]
-        ItemEnum.Function f -> ["Function " ++ show name]
-        _ -> []
+emit (Free Item {name, inner = Struct _}) = do
+  runIO $ putStrLn $ "Struct " ++ show name
+  return []
+emit _ = return []
