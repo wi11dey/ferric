@@ -23,6 +23,7 @@ library
       Ferric.RustDoc.Item
       Ferric.RustDoc.ItemEnum
       Ferric.RustDoc.ItemSummary
+      Ferric.RustDoc.Kind
       Ferric.RustDoc.Module
       Ferric.RustDoc.Struct
       Ferric.RustDoc.StructField
@@ -30,7 +31,6 @@ library
       Ferric.RustDoc.TypeAlias
       Ferric.RustDoc.Use
       Ferric.RustDoc.Variant
-      Ferric.RustDoc.VariantKind
       Ferric.RustDoc.Visibility
       Test
       Paths_ferric
