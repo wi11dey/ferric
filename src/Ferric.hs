@@ -5,12 +5,11 @@ import Data.ByteString.Lazy (ByteString)
 import Data.Map.Strict (Map)
 import Data.Maybe
 import Ferric.Crate
-import Ferric.Item (Item)
+import Ferric.Item
 import Language.Haskell.TH
 import Network.HTTP.Conduit
 import qualified Codec.Compression.Zstd.Lazy as Zstd
 import qualified Data.Map.Strict as Map
-import qualified Ferric.Item as Item
 
 crate :: String -> String -> Q [Dec]
 crate name version = do
@@ -25,5 +24,5 @@ crate' rustdocJson = do
 
 emit :: Map Int Item -> Int -> [String]
 emit root index =
-  case (fromJust $ Map.lookup index root).inner of
+  case inner $ fromJust $ Map.lookup index root of
     _ -> []
