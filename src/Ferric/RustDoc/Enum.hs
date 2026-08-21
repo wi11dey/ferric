@@ -5,7 +5,6 @@ import GHC.Generics
 
 data Enum id = Enum
   { generics :: Value,
-    has_stripped_variants :: Bool,
     variants :: [id],
     impls :: [id]
   }

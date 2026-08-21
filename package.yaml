@@ -19,7 +19,7 @@ default-extensions:
   - TemplateHaskell
 ghc-options:
   - -Wall
+  - -ddump-splices
+  - -ddump-to-file
 library:
   source-dirs: src
-  exposed-modules:
-    - Ferric

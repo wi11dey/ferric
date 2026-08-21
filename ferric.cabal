@@ -11,7 +11,6 @@ build-type:     Simple
 library
   exposed-modules:
       Ferric
-  other-modules:
       Ferric.RustDoc.AssocConst
       Ferric.RustDoc.AssocType
       Ferric.RustDoc.Constant
@@ -33,6 +32,7 @@ library
       Ferric.RustDoc.Variant
       Ferric.RustDoc.Visibility
       Test
+  other-modules:
       Paths_ferric
   hs-source-dirs:
       src
@@ -44,7 +44,7 @@ library
       NamedFieldPuns
       RecordWildCards
       TemplateHaskell
-  ghc-options: -Wall
+  ghc-options: -Wall -ddump-splices
   build-depends:
       aeson
     , base

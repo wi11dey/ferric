@@ -11,7 +11,9 @@ import Ferric.RustDoc.Crate
 import Ferric.RustDoc.Item
 import Ferric.RustDoc.ItemEnum
 import Ferric.RustDoc.ItemSummary
+import qualified Ferric.RustDoc.Kind as Kind
 import qualified Ferric.RustDoc.Module as Item
+import qualified Ferric.RustDoc.Struct as Item
 import qualified Ferric.RustDoc.Use as Item
 import Language.Haskell.TH
 import Network.HTTP.Conduit
@@ -35,10 +37,15 @@ emit (Free Item {name = Just name, inner = Module Item.Module {items}}) = do
 emit (Free Item {name = Just name, inner = Enum _}) = do
   runIO $ putStrLn $ "Enum " ++ name
   return []
-emit (Free Item {name = Just name, inner = Struct _}) = do
+emit (Free Item {name = Just name, inner = Struct Item.Struct {kind}}) = do
   runIO $ putStrLn $ "Struct " ++ name
-  return []
+  return [DataD [] (mkName name) [] Nothing [kindToCon name kind] [DerivClause Nothing [ConT ''Show]]]
 emit (Free Item {name = Just name, inner = StructField _}) = do
   runIO $ putStrLn $ "StructField " ++ name
   return []
 emit _ = return []
+
+kindToCon :: String -> Kind.Kind (Free Item ItemSummary) -> Con
+kindToCon name Kind.Unit = NormalC (mkName name) []
+kindToCon name Kind.Struct {fields} = RecC (mkName name) []
+kindToCon name kind = NormalC (mkName name) []

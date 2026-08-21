@@ -6,7 +6,7 @@ import Control.Applicative
 import Data.Aeson
 import GHC.Generics
 
-data Kind id = Unit | Tuple [Maybe id] | Struct {fields :: [id], has_stripped_fields :: Bool}
+data Kind id = Unit | Tuple [Maybe id] | Struct {fields :: [id]}
   deriving (Read, Show, Generic, Functor)
 
 instance (FromJSON id) => FromJSON (Kind id) where
@@ -17,6 +17,4 @@ instance (FromJSON id) => FromJSON (Kind id) where
       (Tuple <$> obj .: "tuple")
         <|> do
           (obj .: "struct" <|> obj .: "plain") >>= withObject "Struct" \struct ->
-            Struct
-              <$> struct .: "fields"
-              <*> struct .: "has_stripped_fields"
+            Struct <$> struct .: "fields"
