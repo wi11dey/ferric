@@ -44,7 +44,7 @@ library
       NamedFieldPuns
       RecordWildCards
       TemplateHaskell
-  ghc-options: -Wall -ddump-splices
+  ghc-options: -Wall -ddump-splices -ddump-to-file
   build-depends:
       aeson
     , base

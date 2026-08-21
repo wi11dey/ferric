@@ -8,6 +8,7 @@ import Data.ByteString.Lazy (ByteString)
 import Data.Map.Strict ((!?))
 import Data.Maybe
 import Ferric.RustDoc.Crate
+import qualified Ferric.RustDoc.Enum as Item
 import Ferric.RustDoc.Item
 import Ferric.RustDoc.ItemEnum
 import Ferric.RustDoc.ItemSummary
@@ -15,6 +16,7 @@ import qualified Ferric.RustDoc.Kind as Kind
 import qualified Ferric.RustDoc.Module as Item
 import qualified Ferric.RustDoc.Struct as Item
 import qualified Ferric.RustDoc.Use as Item
+import qualified Ferric.RustDoc.Variant as Item
 import Language.Haskell.TH
 import Network.HTTP.Conduit
 
@@ -31,18 +33,21 @@ crate' rustdocJson = do
 
 emit :: Free Item ItemSummary -> Q [Dec]
 emit (Free Item {inner = Use Item.Use {id = Just item}}) = emit item
-emit (Free Item {name = Just name, inner = Module Item.Module {items}}) = do
-  runIO $ putStrLn $ "Module " ++ name
-  concat <$> mapM emit items
-emit (Free Item {name = Just name, inner = Enum _}) = do
-  runIO $ putStrLn $ "Enum " ++ name
-  return []
+emit (Free Item {name = Just name, inner = Module Item.Module {items}}) = concat <$> mapM emit items
+emit (Free Item {name = Just name, inner = Enum Item.Enum {variants}}) = do
+  return
+    [ DataD
+        []
+        (mkName name)
+        []
+        Nothing
+        [ kindToCon (name ++ conName) kind
+        | Free Item {name = Just conName, inner = Variant Item.Variant {kind}} <- variants
+        ]
+        [DerivClause Nothing [ConT ''Show]]
+    ]
 emit (Free Item {name = Just name, inner = Struct Item.Struct {kind}}) = do
-  runIO $ putStrLn $ "Struct " ++ name
-  return [DataD [] (mkName name) [] Nothing [kindToCon name kind] [DerivClause Nothing [ConT ''Show]]]
-emit (Free Item {name = Just name, inner = StructField _}) = do
-  runIO $ putStrLn $ "StructField " ++ name
-  return []
+  return [DataD [] (mkName name) [] Nothing [kindToCon name kind] [DerivClause Nothing [ConT ''Read, ConT ''Show, ConT ''Eq, ConT ''Ord]]]
 emit _ = return []
 
 kindToCon :: String -> Kind.Kind (Free Item ItemSummary) -> Con
