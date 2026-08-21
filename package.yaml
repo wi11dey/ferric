@@ -11,9 +11,10 @@ dependencies:
 default-extensions:
   - DeriveAnyClass
   - DeriveGeneric
+  - OverloadedRecordDot
+  - RecordWildCards
   - TemplateHaskell
   - TypeApplications
-  - UnicodeSyntax
 ghc-options:
   - -Wall
 library:

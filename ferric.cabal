@@ -23,9 +23,10 @@ library
   default-extensions:
       DeriveAnyClass
       DeriveGeneric
+      OverloadedRecordDot
+      RecordWildCards
       TemplateHaskell
       TypeApplications
-      UnicodeSyntax
   ghc-options: -Wall
   build-depends:
       aeson
