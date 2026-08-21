@@ -3,9 +3,9 @@ module Ferric.RustDoc.Struct where
 import Data.Aeson
 import GHC.Generics
 
-data Struct = Struct
+data Struct id = Struct
   { kind :: Value,
     generics :: Value,
-    impls :: [Int]
+    impls :: [id]
   }
   deriving (Show, Generic, FromJSON)

@@ -3,10 +3,10 @@ module Ferric.RustDoc.Use where
 import Data.Aeson
 import GHC.Generics
 
-data Use = Use
+data Use id = Use
   { source :: String,
     name :: String,
-    id :: Int,
+    id :: id,
     is_glob :: Bool
   }
   deriving (Show, Generic, FromJSON)

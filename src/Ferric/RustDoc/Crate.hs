@@ -10,7 +10,7 @@ data Crate = Crate
   { root :: Int,
     crate_version :: Maybe String,
     includes_private :: Bool,
-    index :: Map Int Item,
+    index :: Map Int (Item Int),
     paths :: Map Int ItemSummary,
     format_version :: Int
   }

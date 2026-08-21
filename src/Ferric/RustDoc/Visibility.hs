@@ -7,17 +7,17 @@ import Control.Monad
 import Data.Aeson
 import GHC.Generics
 
-data Visibility
+data Visibility id
   = Public
   | Default
   | Crate
   | Restricted
-      { parent :: Int,
+      { parent :: id,
         path :: String
       }
   deriving (Show, Generic)
 
-instance FromJSON Visibility where
+instance FromJSON id => FromJSON (Visibility id) where
   parseJSON (String "public") = pure Public
   parseJSON (String "default") = pure Default
   parseJSON (String "crate") = pure Crate

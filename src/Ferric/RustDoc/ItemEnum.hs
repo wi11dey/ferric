@@ -18,25 +18,25 @@ import Ferric.RustDoc.Variant (Variant)
 import GHC.Generics
 import Prelude hiding (Enum)
 
-data ItemEnum
+data ItemEnum id
   = AssocConst AssocConst
   | AssocType AssocType
   | Constant Constant
-  | Enum Enum
+  | Enum (Enum id)
   | ExternCrate ExternCrate
   | Function Function
-  | Impl Impl
+  | Impl (Impl id)
   | Macro String
-  | Module Module
-  | Struct Struct
+  | Module (Module id)
+  | Struct (Struct id)
   | StructField StructField
   | Trait Trait
   | TypeAlias TypeAlias
-  | Use Use
+  | Use (Use id)
   | Variant Variant
   deriving (Show, Generic)
 
-instance FromJSON ItemEnum where
+instance FromJSON id => FromJSON (ItemEnum id) where
   parseJSON =
     genericParseJSON
       defaultOptions

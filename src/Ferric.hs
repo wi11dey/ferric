@@ -25,7 +25,7 @@ crate' rustdocJson = do
     mapM_ putStrLn $ emit index root
   return []
 
-emit :: Map Int Item -> Int -> [String]
+emit :: Map Int (Item Int) -> Int -> [String]
 emit index root =
   let Item {name, inner} = index ! root
    in case inner of

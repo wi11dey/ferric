@@ -3,10 +3,10 @@ module Ferric.RustDoc.Enum where
 import Data.Aeson
 import GHC.Generics
 
-data Enum = Enum
+data Enum id = Enum
   { generics :: Value,
     has_stripped_variants :: Bool,
-    variants :: [Int],
-    impls :: [Int]
+    variants :: [id],
+    impls :: [id]
   }
   deriving (Show, Generic, FromJSON)
