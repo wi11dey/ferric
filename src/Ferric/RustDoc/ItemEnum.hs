@@ -33,7 +33,7 @@ data ItemEnum id
   | Trait (Trait id)
   | TypeAlias TypeAlias
   | Use (Use id)
-  | Variant Variant
+  | Variant (Variant id)
   deriving (Read, Show, Generic, Functor)
 
 instance (FromJSON id) => FromJSON (ItemEnum id) where

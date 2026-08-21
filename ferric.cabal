@@ -30,6 +30,7 @@ library
       Ferric.RustDoc.TypeAlias
       Ferric.RustDoc.Use
       Ferric.RustDoc.Variant
+      Ferric.RustDoc.VariantKind
       Ferric.RustDoc.Visibility
       Test
       Paths_ferric

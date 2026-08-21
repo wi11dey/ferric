@@ -8,7 +8,6 @@ import Data.ByteString.Lazy (ByteString)
 import Data.Map.Strict ((!?))
 import Data.Maybe
 import Ferric.RustDoc.Crate
-import qualified Ferric.RustDoc.Enum as Item
 import Ferric.RustDoc.Item
 import Ferric.RustDoc.ItemEnum
 import Ferric.RustDoc.ItemSummary
@@ -29,14 +28,17 @@ crate' rustdocJson = do
     fromJust $ (Right <$> index !? itemId) <|> (Left <$> paths !? itemId)
 
 emit :: Free Item ItemSummary -> Q [Dec]
-emit (Free Item {name, inner = Module Item.Module {items}}) = do
-  runIO $ putStrLn $ "Module " ++ show name
+emit (Free Item {name = Just name, inner = Module Item.Module {items}}) = do
+  runIO $ putStrLn $ "Module " ++ name
   concat <$> mapM emit items
-emit (Free Item {name, inner = Use Item.Use {id = Just item}}) = emit item
-emit (Free Item {name, inner = Enum _}) = do
-  runIO $ putStrLn $ "Enum " ++ show name
+emit (Free Item {inner = Use Item.Use {id = Just item}}) = emit item
+emit (Free Item {name = Just name, inner = Enum _}) = do
+  runIO $ putStrLn $ "Enum " ++ name
   return []
-emit (Free Item {name, inner = Struct _}) = do
-  runIO $ putStrLn $ "Struct " ++ show name
+emit (Free Item {name = Just name, inner = Struct _}) = do
+  runIO $ putStrLn $ "Struct " ++ name
+  return []
+emit (Free Item {name = Just name, inner = StructField _}) = do
+  runIO $ putStrLn $ "StructField " ++ name
   return []
 emit _ = return []
