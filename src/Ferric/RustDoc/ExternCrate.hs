@@ -7,4 +7,4 @@ data ExternCrate = ExternCrate
   { name :: String,
     rename :: Maybe String
   }
-  deriving (Show, Generic, FromJSON)
+  deriving (Read, Show, Generic, FromJSON)

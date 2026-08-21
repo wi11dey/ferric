@@ -7,4 +7,4 @@ data Variant = Variant
   { kind :: Value,
     discriminant :: Maybe Value
   }
-  deriving (Show, Generic, FromJSON)
+  deriving (Read, Show, Generic, FromJSON)

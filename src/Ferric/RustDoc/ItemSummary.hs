@@ -7,4 +7,4 @@ data ItemSummary = ItemSummary
   { crate_id :: Int,
     path :: [String]
   }
-  deriving (Show, Generic, FromJSON)
+  deriving (Read, Show, Generic, FromJSON)

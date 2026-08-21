@@ -3,15 +3,14 @@ module Ferric (crate, crate') where
 import qualified Codec.Compression.Zstd.Lazy as Zstd
 import Data.Aeson
 import Data.ByteString.Lazy (ByteString)
+import Data.Fix
 import Data.Map.Strict (Map, (!))
-import qualified Data.Text.Lazy as Text
 import Ferric.RustDoc.Crate
 import Ferric.RustDoc.Item
 import qualified Ferric.RustDoc.ItemEnum as ItemEnum
 import Ferric.RustDoc.Module
 import Language.Haskell.TH
 import Network.HTTP.Conduit
-import Text.Pretty.Simple
 
 crate :: String -> String -> Q [Dec]
 crate name version = do
@@ -20,10 +19,13 @@ crate name version = do
 
 crate' :: ByteString -> Q [Dec]
 crate' rustdocJson = do
-  Crate {..} <- throwDecode @Crate rustdocJson
+  Crate {..} <- throwDecode rustdocJson
   runIO $ do
     mapM_ putStrLn $ emit index root
   return []
+
+fromCrate :: Crate -> Fix Item
+fromCrate Crate {..} = unfoldFix (index !) root
 
 emit :: Map Int (Item Int) -> Int -> [String]
 emit index root =

@@ -10,4 +10,4 @@ data Function = Function
     has_body :: Bool,
     default_unstable :: Maybe Value
   }
-  deriving (Show, Generic, FromJSON)
+  deriving (Read, Show, Generic, FromJSON)

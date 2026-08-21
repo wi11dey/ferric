@@ -9,4 +9,4 @@ data Enum id = Enum
     variants :: [id],
     impls :: [id]
   }
-  deriving (Show, Generic, FromJSON)
+  deriving (Read, Show, Generic, FromJSON, Functor)

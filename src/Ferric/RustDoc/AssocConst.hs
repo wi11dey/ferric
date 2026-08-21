@@ -8,7 +8,7 @@ data AssocConst = AssocConst
     value :: Maybe String,
     default_unstable :: Maybe Value
   }
-  deriving (Show, Generic)
+  deriving (Read, Show, Generic)
 
 instance FromJSON AssocConst where
   parseJSON =

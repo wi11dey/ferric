@@ -7,7 +7,7 @@ data TypeAlias = TypeAlias
   { type_ :: Value,
     generics :: Value
   }
-  deriving (Show, Generic)
+  deriving (Read, Show, Generic)
 
 instance FromJSON TypeAlias where
   parseJSON =

@@ -8,4 +8,4 @@ data Struct id = Struct
     generics :: Value,
     impls :: [id]
   }
-  deriving (Show, Generic, FromJSON)
+  deriving (Read, Show, Generic, FromJSON, Functor)

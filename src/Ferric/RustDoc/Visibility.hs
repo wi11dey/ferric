@@ -15,9 +15,9 @@ data Visibility id
       { parent :: id,
         path :: String
       }
-  deriving (Show, Generic)
+  deriving (Read, Show, Generic, Functor)
 
-instance FromJSON id => FromJSON (Visibility id) where
+instance (FromJSON id) => FromJSON (Visibility id) where
   parseJSON (String "public") = pure Public
   parseJSON (String "default") = pure Default
   parseJSON (String "crate") = pure Crate

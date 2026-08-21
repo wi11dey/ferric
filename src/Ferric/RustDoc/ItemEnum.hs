@@ -30,13 +30,13 @@ data ItemEnum id
   | Module (Module id)
   | Struct (Struct id)
   | StructField StructField
-  | Trait Trait
+  | Trait (Trait id)
   | TypeAlias TypeAlias
   | Use (Use id)
   | Variant Variant
-  deriving (Show, Generic)
+  deriving (Read, Show, Generic, Functor)
 
-instance FromJSON id => FromJSON (ItemEnum id) where
+instance (FromJSON id) => FromJSON (ItemEnum id) where
   parseJSON =
     genericParseJSON
       defaultOptions

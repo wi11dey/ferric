@@ -14,4 +14,4 @@ data Crate = Crate
     paths :: Map Int ItemSummary,
     format_version :: Int
   }
-  deriving (Show, Generic, FromJSON)
+  deriving (Read, Show, Generic, FromJSON)

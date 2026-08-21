@@ -5,18 +5,18 @@ dependencies:
   - base
   - bytestring
   - containers
+  - data-fix
   - http-conduit
   - template-haskell
   - zstd
-  - pretty-simple
-  - text
 default-extensions:
   - DeriveAnyClass
+  - DeriveFunctor
   - DeriveGeneric
   - NamedFieldPuns
   - RecordWildCards
   - TemplateHaskell
-  - TypeApplications
+  - ViewPatterns
 ghc-options:
   - -Wall
 library:

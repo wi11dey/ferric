@@ -9,4 +9,4 @@ data Use id = Use
     id :: id,
     is_glob :: Bool
   }
-  deriving (Show, Generic, FromJSON)
+  deriving (Read, Show, Generic, FromJSON, Functor)

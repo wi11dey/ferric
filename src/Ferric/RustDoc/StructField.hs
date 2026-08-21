@@ -6,5 +6,5 @@ module Ferric.RustDoc.StructField where
 import Data.Aeson
 
 newtype StructField = StructField Value
-  deriving stock (Show)
+  deriving stock (Read, Show)
   deriving newtype (FromJSON)

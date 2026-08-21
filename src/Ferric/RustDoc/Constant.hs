@@ -7,7 +7,7 @@ data Constant = Constant
   { type_ :: Value,
     const :: Value
   }
-  deriving (Show, Generic)
+  deriving (Read, Show, Generic)
 
 instance FromJSON Constant where
   parseJSON =

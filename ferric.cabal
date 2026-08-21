@@ -37,20 +37,20 @@ library
       src
   default-extensions:
       DeriveAnyClass
+      DeriveFunctor
       DeriveGeneric
       NamedFieldPuns
       RecordWildCards
       TemplateHaskell
-      TypeApplications
+      ViewPatterns
   ghc-options: -Wall
   build-depends:
       aeson
     , base
     , bytestring
     , containers
+    , data-fix
     , http-conduit
-    , pretty-simple
     , template-haskell
-    , text
     , zstd
   default-language: Haskell2010

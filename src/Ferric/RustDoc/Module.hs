@@ -8,4 +8,4 @@ data Module id = Module
     items :: [id],
     is_stripped :: Bool
   }
-  deriving (Show, Generic, FromJSON)
+  deriving (Read, Show, Generic, FromJSON, Functor)

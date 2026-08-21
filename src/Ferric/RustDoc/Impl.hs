@@ -14,9 +14,9 @@ data Impl id = Impl
     is_synthetic :: Bool,
     blanket_impl :: Maybe Value
   }
-  deriving (Show, Generic)
+  deriving (Read, Show, Generic, Functor)
 
-instance FromJSON id => FromJSON (Impl id) where
+instance (FromJSON id) => FromJSON (Impl id) where
   parseJSON =
     genericParseJSON
       defaultOptions

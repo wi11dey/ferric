@@ -9,7 +9,7 @@ data AssocType = AssocType
     type_ :: Maybe Value,
     default_unstable :: Maybe Value
   }
-  deriving (Show, Generic)
+  deriving (Read, Show, Generic)
 
 instance FromJSON AssocType where
   parseJSON =
