@@ -1,11 +1,16 @@
 name: ferric
 version: 1.0
 dependencies:
+  - aeson
   - base
+  - bytestring
+  - http-conduit
+  - template-haskell
   - zstd
 default-extensions:
-  - OverloadedStrings
   - TemplateHaskell
+  - TypeApplications
+  - UnicodeSyntax
 ghc-options:
   - -Wall
 library:
