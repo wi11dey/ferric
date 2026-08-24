@@ -7,6 +7,7 @@ dependencies:
   - containers
   - free
   - http-conduit
+  - linear-base
   - template-haskell
   - zstd
 default-extensions:
@@ -14,6 +15,7 @@ default-extensions:
   - DeriveAnyClass
   - DeriveFunctor
   - DeriveGeneric
+  - LinearTypes
   - NamedFieldPuns
   - RecordWildCards
   - TemplateHaskell

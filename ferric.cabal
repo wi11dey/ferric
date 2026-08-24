@@ -1,6 +1,6 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.39.1.
+-- This file has been generated from package.yaml by hpack version 0.39.6.
 --
 -- see: https://github.com/sol/hpack
 
@@ -41,6 +41,7 @@ library
       DeriveAnyClass
       DeriveFunctor
       DeriveGeneric
+      LinearTypes
       NamedFieldPuns
       RecordWildCards
       TemplateHaskell
@@ -52,6 +53,7 @@ library
     , containers
     , free
     , http-conduit
+    , linear-base
     , template-haskell
     , zstd
   default-language: Haskell2010
