@@ -34,13 +34,16 @@ crate' rustdocJson = do
   if format_version /= 60
     then reportWarning $ "The only rustdoc JSON version that is supported is 60; received " ++ show format_version ++ ". Attempting to continue generating bindings, but may be unsuccessful."
     else pure ()
-  emit $ flip unfold root \itemId ->
-    fromJust $ (Right <$> index !? itemId) <|> (Left <$> paths !? itemId)
+  let
+    lookupItem :: Int -> Either ItemSummary (Item Int)
+    lookupItem itemId =
+      fromJust $ (Right <$> index !? itemId) <|> (Left <$> paths !? itemId)
+  topLevel $ unfold lookupItem root
 
-emit :: Free Item ItemSummary -> Q [Dec]
-emit (Free Item {inner = Use Item.Use {id = Just item}}) = emit item
-emit (Free Item {name = Just name, inner = Module Item.Module {items}}) = concat <$> mapM emit items
-emit (Free Item {name = Just name, inner = Enum Item.Enum {variants}}) = do
+topLevel :: Free Item ItemSummary -> Q [Dec]
+topLevel (Free Item {inner = Use Item.Use {id = Just item}}) = topLevel item
+topLevel (Free Item {name = Just name, inner = Module Item.Module {items}}) = concat <$> mapM topLevel items
+topLevel (Free Item {name = Just name, inner = Enum Item.Enum {variants}}) = do
   return
     [ DataD
         []
@@ -52,9 +55,9 @@ emit (Free Item {name = Just name, inner = Enum Item.Enum {variants}}) = do
         ]
         [DerivClause Nothing [ConT ''Show]]
     ]
-emit (Free Item {name = Just name, inner = Struct Item.Struct {kind}}) = do
+topLevel (Free Item {name = Just name, inner = Struct Item.Struct {kind}}) = do
   return [DataD [] (mkName name) [] Nothing [kindToCon name kind] [DerivClause Nothing [ConT ''Read, ConT ''Show, ConT ''Eq, ConT ''Ord]]]
-emit _ = return []
+topLevel _ = return []
 
 kindToCon :: String -> Kind.Kind (Free Item ItemSummary) -> Con
 kindToCon name Kind.Unit = NormalC (mkName name) []
