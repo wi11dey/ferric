@@ -10,6 +10,7 @@ import Data.Aeson
 import Data.ByteString.Lazy (ByteString)
 import Data.Char
 import Data.Coerce
+import Control.Arrow
 import Data.Functor.Compose
 import qualified Data.Functor.Linear
 import Data.List hiding ((!?))
@@ -62,9 +63,7 @@ crate' rustdocJson = do
     fileFinalizer
     cargoFinalizer [] []
 
-  let lookupItem :: Int -> (ItemSummary, (Compose Maybe Item) Int)
-      lookupItem itemId = (paths ! itemId, Compose $ index !? itemId)
-  topLevel $ unfold lookupItem root
+  topLevel $ unfold ((paths !) &&& Compose . (index !?)) root
 
 ------------------------------------------------------------------------------------------------------------------------
 
@@ -79,7 +78,9 @@ emitRust src' = do
   putQ $ concat src ++ [RustSource $ unindent src']
   return ()
 
-topLevel :: Cofree (Compose Maybe Item) ItemSummary -> Q [Dec]
+type RustDoc = Cofree (Compose Maybe Item) ItemSummary
+
+topLevel :: RustDoc -> Q [Dec]
 topLevel (_ :< Compose (Just Item {inner = Use Item.Use {id = Just item}})) = topLevel item
 topLevel (_ :< Compose (Just Item {inner = Rust.Module Item.Module {items}})) = concat <$> mapM topLevel items
 topLevel
@@ -139,7 +140,7 @@ topLevel (_ :< Compose (Just Item {name = Just name, inner = Struct Item.Struct 
     ]
 topLevel _ = return []
 
-kindToCon :: String -> Kind (Cofree (Compose Maybe Item) ItemSummary) -> Con
+kindToCon :: String -> Kind RustDoc -> Con
 kindToCon name Kind.Unit = NormalC (mkName name) []
 kindToCon name Kind.Struct {fields} = RecC (mkName name) []
 kindToCon name kind = NormalC (mkName name) []
