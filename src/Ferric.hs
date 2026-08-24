@@ -83,6 +83,7 @@ topLevel :: Free Item ItemSummary -> Q [Dec]
 topLevel (Free Item {inner = Use Item.Use {id = Just item}}) = topLevel item
 topLevel (Free Item {inner = Rust.Module Item.Module {items}}) = concat <$> mapM topLevel items
 topLevel (Free Item {name = Just name, visibility = Visibility.Public, inner = Enum Item.Enum {variants}}) = do
+  emitRust ""
   return
     [ DataD
         []
@@ -98,6 +99,7 @@ topLevel (Free Item {name = Just name, visibility = _, inner = Enum Item.Enum {}
   emitRust ""
   return [DataD [] (mkName name) [] Nothing [] []]
 topLevel (Free Item {name = Just name, inner = Struct Item.Struct {kind}}) = do
+  emitRust ""
   return
     [ DataD
         []
@@ -250,6 +252,7 @@ cargoFinalizer extraArgs dependencies = do
   let jOut = last (lines jOuts)
   return ()
 
+-- TODO uncomment this
 -- rustLibFp <-
 --   case decode jOut of
 --     Error msg -> fail ("cargoFinalizer: " ++ msg)
@@ -273,6 +276,7 @@ fileFinalizer :: Q ()
 fileFinalizer = do
   (pkg, mods) <- currentFile
 
+  -- TODO: make this a temp dir
   let dir = ".inline-rust" </> pkg
       thisFile = foldr1 (</>) mods <.> "rs"
 
