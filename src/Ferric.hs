@@ -94,8 +94,14 @@ emitSizeOf typ =
 
 type RustDoc = Cofree (Compose Maybe Item) ItemSummary
 
+pathRenamer :: RustDoc -> ItemSummary -> ItemSummary
+pathRenamer (ItemSummary {path = newPrefix} :< Compose (Just Item {visibility = Visibility.Public, inner = Use Item.Use {is_glob = True, name}})) candidate
+  | matchPrefix `isPrefixOf` fullyQualifiedName candidate = candidate {path = newPrefix ++ stripPrefix path candiate}
+  | otherwise = candidate
+pathRenamer _ candidate = candidate
+
 topLevel :: RustDoc -> Q [Dec]
-topLevel (_ :< Compose (Just Item {visibility = Visibility.Public, inner = Use Item.Use {id = Just item}})) = topLevel item
+topLevel (_ :< Compose (Just Item {visibility = Visibility.Public, inner = Use Item.Use {id = Just item, is_glob, name}})) = topLevel item
 topLevel (_ :< Compose (Just Item {visibility = Visibility.Public, inner = Rust.Module Item.Module {items}})) = concat <$> mapM topLevel items
 topLevel (summary :< Compose (Just Item {name = Just name, visibility = Visibility.Public, inner = Enum Item.Enum {variants, generics = Generics {params = []}}})) = do
   emitSizeOf summary
