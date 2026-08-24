@@ -77,15 +77,21 @@ newtype RustSource = RustSource {rustSrc :: String}
 
 emitRust :: String -> Q ()
 emitRust src' = do
-  src <- getQ
-  putQ $ maybeToList src ++ [RustSource $ unindent src']
+  src <- getQ :: Q (Maybe [RustSource])
+  putQ $ concat src ++ [RustSource $ unindent src']
   return ()
 
 topLevel :: Free Item ItemSummary -> Q [Dec]
 topLevel (Free Item {inner = Use Item.Use {id = Just item}}) = topLevel item
 topLevel (Free Item {inner = Rust.Module Item.Module {items}}) = concat <$> mapM topLevel items
 topLevel (Free Item {name = Just name, visibility = Visibility.Public, inner = Enum Item.Enum {variants}}) = do
-  emitRust ""
+  emitRust
+    [i|
+      #[unsafe(no_mangle)]
+      pub extern "C" fn #{name}(a: usize, b: usize) -> usize {
+          a + b
+      }
+      |]
   return
     [ DataD
         []
@@ -98,12 +104,22 @@ topLevel (Free Item {name = Just name, visibility = Visibility.Public, inner = E
         [DerivClause Nothing [ConT ''Show]]
     ]
 topLevel (Free Item {name = Just name, visibility = _, inner = Enum Item.Enum {}}) = do
-  emitRust ""
+  emitRust
+    [i|
+      #[unsafe(no_mangle)]
+      pub extern "C" fn #{name}(a: usize, b: usize) -> usize {
+          a + b
+      }
+      |]
   return [DataD [] (mkName name) [] Nothing [] []]
 topLevel (Free Item {name = Just name, inner = Struct Item.Struct {kind}}) = do
   emitRust
     [i|
-             |]
+      #[unsafe(no_mangle)]
+      pub extern "C" fn #{name}(a: usize, b: usize) -> usize {
+          a + b
+      }
+      |]
   return
     [ DataD
         []
@@ -287,16 +303,7 @@ fileFinalizer = do
   -- Figure out what we are putting into this file
   Just sources <- getQ :: Q (Maybe [RustSource])
   -- Just (Context (_,_,impls)) <- getQ
-  let code =
-        unlines (rustSrc <$> sources)
-          ++ ( showString "pub mod marshal {\n"
-                 . showString "#[allow(unused_imports)] use super::*;\n"
-                 . showString "pub trait MarshalInto<T> { fn marshal(self) -> T; }\n"
-                 -- . appEndo (foldMap (\s -> Endo (showString s . showString "\n")) impls)
-                 . showString "}\n"
-                 . showString "#[allow(unused_imports)]  use self::marshal::*;\n"
-                 $ ""
-             )
+  let code = unlines (rustSrc <$> sources)
 
   -- Write out the file
   runIO $ createDirectoryIfMissing True dir
