@@ -51,13 +51,11 @@ crate name version = do
 crate' :: ByteString -> Q [Dec]
 crate' rustdocJson = do
   Crate {..} <- throwDecode rustdocJson
-  if format_version /= 60
-    then
-      reportWarning $
-        "The only rustdoc JSON version that is supported is 60; received "
-          ++ show format_version
-          ++ ". Attempting to continue generating bindings, but may be unsuccessful."
-    else pure ()
+  when (format_version /= 60) $
+    reportWarning $
+      "The only rustdoc JSON version that is supported is 60; received "
+        ++ show format_version
+        ++ ". Attempting to continue generating bindings, but may be unsuccessful."
 
   addModFinalizer do
     fileFinalizer
@@ -232,6 +230,7 @@ cargoFinalizer extraArgs dependencies = do
   --         * We could automatically link in these libraries, if GHC supported
   --           specifying libraries to pass to the final linker call.
   --
+  -- TODO: just pass this into cargo via CreateProcess
   runIO $ setEnv "RUSTFLAGS" "--print native-static-libs"
   let cargoArgs =
         [ "build",
@@ -244,7 +243,7 @@ cargoFinalizer extraArgs dependencies = do
   ec <- runIO $ spawnProcess "cargo" cargoArgs >>= waitForProcess
   when
     (ec /= ExitSuccess)
-    (reportError rustcErrMsg)
+    (reportError "Rust source file associated with this module failed to compile")
 
   -- Run Cargo again to get the static library path
   jOuts <- runIO $ readProcess "cargo" (cargoArgs ++ msgFormat) ""
@@ -265,16 +264,6 @@ cargoFinalizer extraArgs dependencies = do
 
 -- -- Link in the static library
 -- addForeignFilePath RawObject rustLibFp'
-
--- | Error message to display when @cargo@/@rustc@ fail to compile the module's
--- Rust file. Unfortunately, [errors reported by TH are always followed by the
--- piece of error code][0]. In this case, that ends up being the top of the file.
---
--- TODO: is there a way to avoid this?
---
--- [0]: https://stackoverflow.com/questions/47598270/whole-file-template-haskell-error
-rustcErrMsg :: String
-rustcErrMsg = "Rust source file associated with this module failed to compile"
 
 -- | A finalizer to write out a Rust source file when we are done processing
 -- a module. This emits into a file in the @.inline-rust@ directory all of the
