@@ -82,6 +82,8 @@ kindToCon name Kind.Unit = NormalC (mkName name) []
 kindToCon name Kind.Struct {fields} = RecC (mkName name) []
 kindToCon name kind = NormalC (mkName name) []
 
+------------------------------------------------------------------------------------------------------------------------
+
 -- | Monad in which to do borrow-checked Rust logic
 newtype Fe a = Fe {runFe :: RIO a}
   deriving newtype
