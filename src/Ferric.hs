@@ -277,10 +277,10 @@ fileFinalizer = do
       thisFile = foldr1 (</>) mods <.> "rs"
 
   -- Figure out what we are putting into this file
-  Just cb <- getQ
+  Just sources <- getQ :: Q (Maybe [RustSource])
   -- Just (Context (_,_,impls)) <- getQ
   let code =
-        rustSrc cb
+        unlines (rustSrc <$> sources)
           ++ ( showString "pub mod marshal {\n"
                  . showString "#[allow(unused_imports)] use super::*;\n"
                  . showString "pub trait MarshalInto<T> { fn marshal(self) -> T; }\n"
