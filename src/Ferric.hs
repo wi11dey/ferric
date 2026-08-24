@@ -22,7 +22,10 @@ import Network.HTTP.Conduit
 
 crate :: String -> String -> Q [Dec]
 crate name version = do
-  compressed <- runIO $ simpleHttp $ "https://docs.rs/crate/" ++ name ++ "/" ++ version ++ "/json"
+  compressed <- runIO do
+    let rustdocUrl = "https://docs.rs/crate/" ++ name ++ "/" ++ version ++ "/json"
+    putStrLn $ "Downloading " ++ rustdocUrl ++ "..."
+    simpleHttp rustdocUrl
   crate' $ Zstd.decompress compressed
 
 crate' :: ByteString -> Q [Dec]
