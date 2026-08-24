@@ -1,4 +1,4 @@
-module Ferric (crate, crate', Fe) where
+module Ferric (crate, crate', Fe, Owned, Borrowed, rust) where
 
 import qualified Codec.Compression.Zstd.Lazy as Zstd
 import Control.Applicative
@@ -6,9 +6,11 @@ import qualified Control.Functor.Linear as Linear
 import Control.Monad.Free
 import Data.Aeson
 import Data.ByteString.Lazy (ByteString)
+import Data.Coerce
 import qualified Data.Functor.Linear
 import Data.Map.Strict ((!?))
 import Data.Maybe
+import Data.Unrestricted.Linear
 import Ferric.RustDoc.Crate
 import qualified Ferric.RustDoc.Enum as Item
 import Ferric.RustDoc.Item
@@ -20,6 +22,7 @@ import qualified Ferric.RustDoc.Struct as Item
 import qualified Ferric.RustDoc.Use as Item
 import qualified Ferric.RustDoc.Variant as Item
 import Foreign.Ptr
+import Foreign.Storable
 import Language.Haskell.TH
 import Network.HTTP.Conduit
 import System.IO.Resource.Linear
@@ -68,7 +71,7 @@ kindToCon name Kind.Struct {fields} = RecC (mkName name) []
 kindToCon name kind = NormalC (mkName name) []
 
 -- | Monad in which to do borrow-checked Rust logic
-newtype Fe a = Fe (RIO a)
+newtype Fe a = Fe {runFe :: RIO a}
   deriving newtype
     ( Data.Functor.Linear.Functor,
       Data.Functor.Linear.Applicative,
@@ -77,4 +80,14 @@ newtype Fe a = Fe (RIO a)
       Linear.Monad
     )
 
+newtype Owned a = Owned (Ptr a)
+
 newtype Borrowed a = Borrowed (Ptr a)
+
+unmarshal :: a %1 -> RIO (Ur a)
+unmarshal = undefined
+
+rust :: (Storable a) => Fe (Owned a) -> IO a
+rust fe = do
+  ptr <- run (runFe fe Linear.>>= unmarshal)
+  peek $ coerce ptr
