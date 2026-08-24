@@ -63,7 +63,7 @@ crate' rustdocJson = do
     fileFinalizer
     cargoFinalizer [] []
 
-  topLevel $ unfold ((paths !) &&& Compose . (index !?)) root
+  topLevel $ unfold ((paths !) &&& coerce . (index !?)) root
 
 ------------------------------------------------------------------------------------------------------------------------
 
