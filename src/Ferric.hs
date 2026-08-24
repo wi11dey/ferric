@@ -32,7 +32,7 @@ crate :: String -> String -> Q [Dec]
 crate name version = do
   compressed <- runIO do
     let rustdocUrl = "https://docs.rs/crate/" ++ name ++ "/" ++ version ++ "/json"
-    putStrLn $ "Downloading " ++ rustdocUrl ++ "..."
+    putStrLn $ "🦀 Downloading " ++ rustdocUrl ++ "..."
     simpleHttp rustdocUrl
   crate' $ Zstd.decompress compressed
 
@@ -74,7 +74,15 @@ topLevel (Free Item {name = Just name, visibility = Visibility.Public, inner = E
 topLevel (Free Item {name = Just name, visibility = _, inner = Enum Item.Enum {}}) = do
   return [DataD [] (mkName name) [] Nothing [] []]
 topLevel (Free Item {name = Just name, inner = Struct Item.Struct {kind}}) = do
-  return [DataD [] (mkName name) [] Nothing [kindToCon name kind] defaultDerivClauses]
+  return
+    [ DataD
+        []
+        (mkName name)
+        []
+        Nothing
+        [kindToCon name kind]
+        defaultDerivClauses
+    ]
 topLevel _ = return []
 
 kindToCon :: String -> Kind.Kind (Free Item ItemSummary) -> Con

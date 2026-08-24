@@ -31,7 +31,6 @@ library
       Ferric.RustDoc.Use
       Ferric.RustDoc.Variant
       Ferric.RustDoc.Visibility
-      Test
   other-modules:
       Paths_ferric
   hs-source-dirs:
@@ -53,6 +52,38 @@ library
     , base
     , bytestring
     , containers
+    , free
+    , http-conduit
+    , linear-base
+    , template-haskell
+    , zstd
+  default-language: Haskell2010
+
+test-suite webrender
+  type: exitcode-stdio-1.0
+  main-is: Test.hs
+  other-modules:
+      Paths_ferric
+  hs-source-dirs:
+      test
+  default-extensions:
+      BlockArguments
+      DeriveAnyClass
+      DeriveFunctor
+      DeriveGeneric
+      DerivingStrategies
+      GeneralizedNewtypeDeriving
+      LinearTypes
+      NamedFieldPuns
+      RecordWildCards
+      TemplateHaskell
+  ghc-options: -Wall -ddump-splices -ddump-to-file
+  build-depends:
+      aeson
+    , base
+    , bytestring
+    , containers
+    , ferric
     , free
     , http-conduit
     , linear-base

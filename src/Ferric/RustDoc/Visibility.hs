@@ -14,7 +14,7 @@ data Visibility id
       { parent :: id,
         path :: String
       }
-  deriving (Read, Show, Generic, Functor)
+  deriving (Read, Show, Eq, Generic, Functor)
 
 instance (FromJSON id) => FromJSON (Visibility id) where
   parseJSON (String "public") = pure Public

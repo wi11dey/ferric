@@ -27,3 +27,8 @@ ghc-options:
   - -ddump-to-file
 library:
   source-dirs: src
+tests:
+  webrender:
+    main: Test.hs
+    source-dirs: test
+    dependencies: ferric
