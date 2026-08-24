@@ -6,7 +6,8 @@ import Ferric.RustDoc.Visibility (Visibility)
 import GHC.Generics
 
 data Item id = Item
-  { name :: Maybe String,
+  { id :: Int,
+    name :: Maybe String,
     visibility :: Visibility id,
     docs :: Maybe String,
     inner :: ItemEnum id
