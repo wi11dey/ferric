@@ -3,18 +3,17 @@
 module Ferric (crate, crate', Fe, Owned, Borrowed, rust) where
 
 import qualified Codec.Compression.Zstd.Lazy as Zstd
-import Control.Applicative
+import Control.Comonad.Cofree
 import qualified Control.Functor.Linear as Linear
 import Control.Monad
-import Control.Monad.Free
 import Data.Aeson
 import Data.ByteString.Lazy (ByteString)
 import Data.Char
 import Data.Coerce
+import Data.Functor.Compose
 import qualified Data.Functor.Linear
 import Data.List hiding ((!?))
-import Data.Map.Strict ((!?))
-import Data.Maybe
+import Data.Map.Strict ((!), (!?))
 import Data.String.Interpolate
 import Data.String.Interpolate.Util (unindent)
 import Data.Unrestricted.Linear
@@ -63,10 +62,11 @@ crate' rustdocJson = do
     fileFinalizer
     cargoFinalizer [] []
 
-  let lookupItem :: Int -> Either ItemSummary (Item Int)
-      lookupItem itemId =
-        fromJust $ (Right <$> index !? itemId) <|> (Left <$> paths !? itemId)
+  let lookupItem :: Int -> (ItemSummary, (Compose Maybe Item) Int)
+      lookupItem itemId = (paths ! itemId, Compose $ index !? itemId)
   topLevel $ unfold lookupItem root
+
+-- need a cofree here instead of free to have itemsummary everywhere
 
 ------------------------------------------------------------------------------------------------------------------------
 
@@ -81,29 +81,39 @@ emitRust src' = do
   putQ $ concat src ++ [RustSource $ unindent src']
   return ()
 
-topLevel :: Free Item ItemSummary -> Q [Dec]
-topLevel (Free Item {inner = Use Item.Use {id = Just item}}) = topLevel item
-topLevel (Free Item {inner = Rust.Module Item.Module {items}}) = concat <$> mapM topLevel items
-topLevel (Free Item {name = Just name, visibility = Visibility.Public, inner = Enum Item.Enum {variants}}) = do
-  emitRust
-    [i|
+topLevel :: Cofree (Compose Maybe Item) ItemSummary -> Q [Dec]
+topLevel (_ :< Compose (Just Item {inner = Use Item.Use {id = Just item}})) = topLevel item
+topLevel (_ :< Compose (Just Item {inner = Rust.Module Item.Module {items}})) = concat <$> mapM topLevel items
+topLevel
+  ( _
+      :< Compose
+           ( Just
+               Item
+                 { name = Just name,
+                   visibility = Visibility.Public,
+                   inner = Enum Item.Enum {variants}
+                 }
+             )
+    ) = do
+    emitRust
+      [i|
       #[unsafe(no_mangle)]
       pub extern "C" fn #{name}(a: usize, b: usize) -> usize {
           a + b
       }
       |]
-  return
-    [ DataD
-        []
-        (mkName name)
-        []
-        Nothing
-        [ kindToCon (name ++ conName) kind
-        | Free Item {name = Just conName, inner = Variant Item.Variant {kind}} <- variants
-        ]
-        [DerivClause Nothing [ConT ''Show]]
-    ]
-topLevel (Free Item {name = Just name, visibility = _, inner = Enum Item.Enum {}}) = do
+    return
+      [ DataD
+          []
+          (mkName name)
+          []
+          Nothing
+          [ kindToCon (name ++ conName) kind
+          | _ :< Compose (Just Item {name = Just conName, inner = Variant Item.Variant {kind}}) <- variants
+          ]
+          [DerivClause Nothing [ConT ''Show]]
+      ]
+topLevel (_ :< Compose (Just Item {name = Just name, visibility = _, inner = Enum Item.Enum {}})) = do
   emitRust
     [i|
       #[unsafe(no_mangle)]
@@ -112,7 +122,7 @@ topLevel (Free Item {name = Just name, visibility = _, inner = Enum Item.Enum {}
       }
       |]
   return [DataD [] (mkName name) [] Nothing [] []]
-topLevel (Free Item {name = Just name, inner = Struct Item.Struct {kind}}) = do
+topLevel (_ :< Compose (Just Item {name = Just name, inner = Struct Item.Struct {kind}})) = do
   emitRust
     [i|
       #[unsafe(no_mangle)]
@@ -131,7 +141,7 @@ topLevel (Free Item {name = Just name, inner = Struct Item.Struct {kind}}) = do
     ]
 topLevel _ = return []
 
-kindToCon :: String -> Kind (Free Item ItemSummary) -> Con
+kindToCon :: String -> Kind (Cofree (Compose Maybe Item) ItemSummary) -> Con
 kindToCon name Kind.Unit = NormalC (mkName name) []
 kindToCon name Kind.Struct {fields} = RecC (mkName name) []
 kindToCon name kind = NormalC (mkName name) []
