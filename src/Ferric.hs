@@ -3,6 +3,7 @@
 module Ferric (crate, crate', Fe, Owned, Borrowed, rust) where
 
 import qualified Codec.Compression.Zstd.Lazy as Zstd
+import Control.Arrow
 import Control.Comonad.Cofree
 import qualified Control.Functor.Linear as Linear
 import Control.Monad
@@ -10,7 +11,6 @@ import Data.Aeson
 import Data.ByteString.Lazy (ByteString)
 import Data.Char
 import Data.Coerce
-import Control.Arrow
 import Data.Functor.Compose
 import qualified Data.Functor.Linear
 import Data.List hiding ((!?))
@@ -20,6 +20,7 @@ import Data.String.Interpolate.Util (unindent)
 import Data.Unrestricted.Linear
 import Ferric.RustDoc.Crate
 import qualified Ferric.RustDoc.Enum as Item
+import Ferric.RustDoc.Generics
 import Ferric.RustDoc.Item
 import Ferric.RustDoc.ItemEnum as Rust
 import Ferric.RustDoc.ItemSummary
@@ -34,7 +35,7 @@ import Foreign.Ptr
 import Foreign.Storable
 import Language.Haskell.TH.Lib
 import Language.Haskell.TH.Syntax as Haskell hiding (Kind)
-import Network.HTTP.Conduit
+import Network.HTTP.Conduit (simpleHttp)
 import System.Directory
 import System.Environment
 import System.Exit
@@ -48,10 +49,10 @@ crate name version = do
     let rustdocUrl = "https://docs.rs/crate" </> name </> version </> "json"
     putStrLn $ "🦀 Downloading " ++ rustdocUrl ++ "..."
     simpleHttp rustdocUrl
-  crate' $ Zstd.decompress compressed
+  crate' name version $ Zstd.decompress compressed
 
-crate' :: ByteString -> Q [Dec]
-crate' rustdocJson = do
+crate' :: String -> String -> ByteString -> Q [Dec]
+crate' name version rustdocJson = do
   Crate {..} <- throwDecode rustdocJson
   when (format_version /= 60) $
     reportWarning $
@@ -61,7 +62,7 @@ crate' rustdocJson = do
 
   addModFinalizer do
     fileFinalizer
-    cargoFinalizer [] []
+    cargoFinalizer [] [(name, version)]
 
   topLevel $ unfold ((paths !) &&& coerce . (index !?)) root
 
@@ -78,57 +79,42 @@ emitRust src' = do
   putQ $ concat src ++ [RustSource $ unindent src']
   return ()
 
+fullyQualifiedName :: ItemSummary -> String
+fullyQualifiedName ItemSummary {..} = intercalate "::" path
+
+emitSizeOf :: ItemSummary -> Q ()
+emitSizeOf typ =
+  emitRust
+    [i|
+      #[unsafe(no_mangle)]
+      pub extern "C" fn #{last $ path typ}_size() -> usize {
+          std::mem::size_of::<#{fullyQualifiedName typ}>()
+      }
+      |]
+
 type RustDoc = Cofree (Compose Maybe Item) ItemSummary
 
 topLevel :: RustDoc -> Q [Dec]
-topLevel (_ :< Compose (Just Item {inner = Use Item.Use {id = Just item}})) = topLevel item
-topLevel (_ :< Compose (Just Item {inner = Rust.Module Item.Module {items}})) = concat <$> mapM topLevel items
-topLevel
-  ( _
-      :< Compose
-           ( Just
-               Item
-                 { name = Just name,
-                   visibility = Visibility.Public,
-                   inner = Enum Item.Enum {variants}
-                 }
-             )
-    ) = do
-    emitRust
-      [i|
-      #[unsafe(no_mangle)]
-      pub extern "C" fn #{name}(a: usize, b: usize) -> usize {
-          a + b
-      }
-      |]
-    return
-      [ DataD
-          []
-          (mkName name)
-          []
-          Nothing
-          [ kindToCon (name ++ conName) kind
-          | _ :< Compose (Just Item {name = Just conName, inner = Variant Item.Variant {kind}}) <- variants
-          ]
-          [DerivClause Nothing [ConT ''Show]]
-      ]
-topLevel (_ :< Compose (Just Item {name = Just name, visibility = _, inner = Enum Item.Enum {}})) = do
-  emitRust
-    [i|
-      #[unsafe(no_mangle)]
-      pub extern "C" fn #{name}(a: usize, b: usize) -> usize {
-          a + b
-      }
-      |]
+topLevel (_ :< Compose (Just Item {visibility = Visibility.Public, inner = Use Item.Use {id = Just item}})) = topLevel item
+topLevel (_ :< Compose (Just Item {visibility = Visibility.Public, inner = Rust.Module Item.Module {items}})) = concat <$> mapM topLevel items
+topLevel (summary :< Compose (Just Item {name = Just name, visibility = Visibility.Public, inner = Enum Item.Enum {variants, generics = Generics {params = []}}})) = do
+  emitSizeOf summary
+  return
+    [ DataD
+        []
+        (mkName name)
+        []
+        Nothing
+        [ kindToCon (name ++ conName) kind
+        | _ :< Compose (Just Item {name = Just conName, inner = Variant Item.Variant {kind}}) <- variants
+        ]
+        [DerivClause Nothing [ConT ''Show]]
+    ]
+topLevel (summary :< Compose (Just Item {name = Just name, visibility = _, inner = Enum Item.Enum {generics = Generics {params = []}}})) = do
+  emitSizeOf summary
   return [DataD [] (mkName name) [] Nothing [] []]
-topLevel (_ :< Compose (Just Item {name = Just name, inner = Struct Item.Struct {kind}})) = do
-  emitRust
-    [i|
-      #[unsafe(no_mangle)]
-      pub extern "C" fn #{name}(a: usize, b: usize) -> usize {
-          a + b
-      }
-      |]
+topLevel (summary :< Compose (Just Item {name = Just name, inner = Struct Item.Struct {kind, generics = Generics {params = []}}})) = do
+  emitSizeOf summary
   return
     [ DataD
         []
@@ -236,6 +222,7 @@ cargoFinalizer extraArgs dependencies = do
           [ "[package]",
             "name = \"" ++ localCrate ++ "\"",
             "version = \"0.0.0\"",
+            "edition = \"2024\"",
             "[dependencies]",
             unlines
               [ name ++ " = \"" ++ version ++ "\""

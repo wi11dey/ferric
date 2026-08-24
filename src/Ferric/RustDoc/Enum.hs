@@ -1,10 +1,11 @@
 module Ferric.RustDoc.Enum where
 
 import Data.Aeson
+import Ferric.RustDoc.Generics (Generics)
 import GHC.Generics
 
 data Enum id = Enum
-  { generics :: Value,
+  { generics :: Generics,
     variants :: [id],
     impls :: [id]
   }

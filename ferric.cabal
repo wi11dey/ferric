@@ -18,6 +18,7 @@ library
       Ferric.RustDoc.Enum
       Ferric.RustDoc.ExternCrate
       Ferric.RustDoc.Function
+      Ferric.RustDoc.Generics
       Ferric.RustDoc.Impl
       Ferric.RustDoc.Item
       Ferric.RustDoc.ItemEnum
