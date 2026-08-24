@@ -66,8 +66,6 @@ crate' rustdocJson = do
       lookupItem itemId = (paths ! itemId, Compose $ index !? itemId)
   topLevel $ unfold lookupItem root
 
--- need a cofree here instead of free to have itemsummary everywhere
-
 ------------------------------------------------------------------------------------------------------------------------
 
 defaultDerivClauses :: [DerivClause]
