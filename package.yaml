@@ -5,9 +5,12 @@ dependencies:
   - base
   - bytestring
   - containers
+  - directory
+  - filepath
   - free
   - http-conduit
   - linear-base
+  - process
   - template-haskell
   - zstd
 default-extensions:
