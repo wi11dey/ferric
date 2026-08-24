@@ -21,6 +21,7 @@ import qualified Ferric.RustDoc.Module as Item
 import qualified Ferric.RustDoc.Struct as Item
 import qualified Ferric.RustDoc.Use as Item
 import qualified Ferric.RustDoc.Variant as Item
+import qualified Ferric.RustDoc.Visibility as Visibility
 import Foreign.Ptr
 import Foreign.Storable
 import Language.Haskell.TH
@@ -39,17 +40,26 @@ crate' :: ByteString -> Q [Dec]
 crate' rustdocJson = do
   Crate {..} <- throwDecode rustdocJson
   if format_version /= 60
-    then reportWarning $ "The only rustdoc JSON version that is supported is 60; received " ++ show format_version ++ ". Attempting to continue generating bindings, but may be unsuccessful."
+    then
+      reportWarning $
+        "The only rustdoc JSON version that is supported is 60; received "
+          ++ show format_version
+          ++ ". Attempting to continue generating bindings, but may be unsuccessful."
     else pure ()
   let lookupItem :: Int -> Either ItemSummary (Item Int)
       lookupItem itemId =
         fromJust $ (Right <$> index !? itemId) <|> (Left <$> paths !? itemId)
   topLevel $ unfold lookupItem root
 
+------------------------------------------------------------------------------------------------------------------------
+
+defaultDerivClauses :: [DerivClause]
+defaultDerivClauses = [DerivClause (Just StockStrategy) [ConT ''Read, ConT ''Show, ConT ''Eq, ConT ''Ord]]
+
 topLevel :: Free Item ItemSummary -> Q [Dec]
 topLevel (Free Item {inner = Use Item.Use {id = Just item}}) = topLevel item
-topLevel (Free Item {name = Just name, inner = Module Item.Module {items}}) = concat <$> mapM topLevel items
-topLevel (Free Item {name = Just name, inner = Enum Item.Enum {variants}}) = do
+topLevel (Free Item {inner = Module Item.Module {items}}) = concat <$> mapM topLevel items
+topLevel (Free Item {name = Just name, visibility = Visibility.Public, inner = Enum Item.Enum {variants}}) = do
   return
     [ DataD
         []
@@ -61,8 +71,10 @@ topLevel (Free Item {name = Just name, inner = Enum Item.Enum {variants}}) = do
         ]
         [DerivClause Nothing [ConT ''Show]]
     ]
+topLevel (Free Item {name = Just name, visibility = _, inner = Enum Item.Enum {}}) = do
+  return [DataD [] (mkName name) [] Nothing [] []]
 topLevel (Free Item {name = Just name, inner = Struct Item.Struct {kind}}) = do
-  return [DataD [] (mkName name) [] Nothing [kindToCon name kind] [DerivClause Nothing [ConT ''Read, ConT ''Show, ConT ''Eq, ConT ''Ord]]]
+  return [DataD [] (mkName name) [] Nothing [kindToCon name kind] defaultDerivClauses]
 topLevel _ = return []
 
 kindToCon :: String -> Kind.Kind (Free Item ItemSummary) -> Con
