@@ -1,10 +1,12 @@
-module Ferric (crate, crate') where
+module Ferric (crate, crate', Fe) where
 
 import qualified Codec.Compression.Zstd.Lazy as Zstd
 import Control.Applicative
+import qualified Control.Functor.Linear as Linear
 import Control.Monad.Free
 import Data.Aeson
 import Data.ByteString.Lazy (ByteString)
+import qualified Data.Functor.Linear
 import Data.Map.Strict ((!?))
 import Data.Maybe
 import Ferric.RustDoc.Crate
@@ -17,8 +19,10 @@ import qualified Ferric.RustDoc.Module as Item
 import qualified Ferric.RustDoc.Struct as Item
 import qualified Ferric.RustDoc.Use as Item
 import qualified Ferric.RustDoc.Variant as Item
+import Foreign.Ptr
 import Language.Haskell.TH
 import Network.HTTP.Conduit
+import System.IO.Resource.Linear
 
 crate :: String -> String -> Q [Dec]
 crate name version = do
@@ -34,10 +38,9 @@ crate' rustdocJson = do
   if format_version /= 60
     then reportWarning $ "The only rustdoc JSON version that is supported is 60; received " ++ show format_version ++ ". Attempting to continue generating bindings, but may be unsuccessful."
     else pure ()
-  let
-    lookupItem :: Int -> Either ItemSummary (Item Int)
-    lookupItem itemId =
-      fromJust $ (Right <$> index !? itemId) <|> (Left <$> paths !? itemId)
+  let lookupItem :: Int -> Either ItemSummary (Item Int)
+      lookupItem itemId =
+        fromJust $ (Right <$> index !? itemId) <|> (Left <$> paths !? itemId)
   topLevel $ unfold lookupItem root
 
 topLevel :: Free Item ItemSummary -> Q [Dec]
@@ -63,3 +66,15 @@ kindToCon :: String -> Kind.Kind (Free Item ItemSummary) -> Con
 kindToCon name Kind.Unit = NormalC (mkName name) []
 kindToCon name Kind.Struct {fields} = RecC (mkName name) []
 kindToCon name kind = NormalC (mkName name) []
+
+-- | Monad in which to do borrow-checked Rust logic
+newtype Fe a = Fe (RIO a)
+  deriving newtype
+    ( Data.Functor.Linear.Functor,
+      Data.Functor.Linear.Applicative,
+      Linear.Functor,
+      Linear.Applicative,
+      Linear.Monad
+    )
+
+newtype Borrowed a = Borrowed (Ptr a)

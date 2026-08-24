@@ -41,6 +41,8 @@ library
       DeriveAnyClass
       DeriveFunctor
       DeriveGeneric
+      DerivingStrategies
+      GeneralizedNewtypeDeriving
       LinearTypes
       NamedFieldPuns
       RecordWildCards
