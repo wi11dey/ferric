@@ -9,6 +9,7 @@ dependencies:
   - filepath
   - free
   - http-conduit
+  - interpolate
   - linear-base
   - process
   - template-haskell
@@ -22,6 +23,7 @@ default-extensions:
   - GeneralizedNewtypeDeriving
   - LinearTypes
   - NamedFieldPuns
+  - QuasiQuotes
   - RecordWildCards
   - TemplateHaskell
 ghc-options:

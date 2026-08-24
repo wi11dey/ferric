@@ -44,6 +44,7 @@ library
       GeneralizedNewtypeDeriving
       LinearTypes
       NamedFieldPuns
+      QuasiQuotes
       RecordWildCards
       TemplateHaskell
   ghc-options: -Wall -ddump-splices -ddump-to-file
@@ -56,6 +57,7 @@ library
     , filepath
     , free
     , http-conduit
+    , interpolate
     , linear-base
     , process
     , template-haskell
@@ -78,6 +80,7 @@ test-suite webrender
       GeneralizedNewtypeDeriving
       LinearTypes
       NamedFieldPuns
+      QuasiQuotes
       RecordWildCards
       TemplateHaskell
   ghc-options: -Wall -ddump-splices -ddump-to-file
@@ -91,6 +94,7 @@ test-suite webrender
     , filepath
     , free
     , http-conduit
+    , interpolate
     , linear-base
     , process
     , template-haskell

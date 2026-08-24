@@ -15,6 +15,8 @@ import qualified Data.Functor.Linear
 import Data.List hiding ((!?))
 import Data.Map.Strict ((!?))
 import Data.Maybe
+import Data.String.Interpolate
+import Data.String.Interpolate.Util (unindent)
 import Data.Unrestricted.Linear
 import Ferric.RustDoc.Crate
 import qualified Ferric.RustDoc.Enum as Item
@@ -43,7 +45,7 @@ import System.Process
 crate :: String -> String -> Q [Dec]
 crate name version = do
   compressed <- runIO do
-    let rustdocUrl = "https://docs.rs/crate/" ++ name ++ "/" ++ version ++ "/json"
+    let rustdocUrl = "https://docs.rs/crate" </> name </> version </> "json"
     putStrLn $ "🦀 Downloading " ++ rustdocUrl ++ "..."
     simpleHttp rustdocUrl
   crate' $ Zstd.decompress compressed
@@ -76,7 +78,7 @@ newtype RustSource = RustSource {rustSrc :: String}
 emitRust :: String -> Q ()
 emitRust src' = do
   src <- getQ
-  putQ $ maybeToList src ++ [RustSource src']
+  putQ $ maybeToList src ++ [RustSource $ unindent src']
   return ()
 
 topLevel :: Free Item ItemSummary -> Q [Dec]
@@ -99,7 +101,9 @@ topLevel (Free Item {name = Just name, visibility = _, inner = Enum Item.Enum {}
   emitRust ""
   return [DataD [] (mkName name) [] Nothing [] []]
 topLevel (Free Item {name = Just name, inner = Struct Item.Struct {kind}}) = do
-  emitRust ""
+  emitRust
+    [i|
+             |]
   return
     [ DataD
         []
